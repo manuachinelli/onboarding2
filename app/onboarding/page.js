@@ -5,14 +5,30 @@ import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
   const [showLogo, setShowLogo] = useState(false)
+  const [step, setStep] = useState(0)
+  const [showFinal, setShowFinal] = useState(false)
   const router = useRouter()
 
+  const messages = [
+    'BIENVENIDO A IGOR',
+    'TU PRIMER AGENTE PERSONAL',
+    'SERA TU MEJOR AMIGO PARA SIEMPRE',
+    'HARA LAS TAREAS REPETITIVAS DE TU TRABAJO',
+    'Y VOS TE ENCARGARAS DE LO DEMAS',
+    'HACIENDO FOCO EN LO QUE REALMENTE TE DA VALOR',
+  ]
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowLogo(true)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [])
+    const interval = setInterval(() => {
+      if (step < messages.length - 1) {
+        setStep((prev) => prev + 1)
+      } else {
+        clearInterval(interval)
+        setTimeout(() => setShowLogo(true), 1500)
+      }
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [step])
 
   const iconNames = ['automation.png', 'billing.png', 'chat.png', 'flows.png']
 
@@ -30,22 +46,14 @@ export default function OnboardingPage() {
       overflow: 'hidden'
     }}>
       {!showLogo ? (
-        <svg width="200" height="200" viewBox="0 0 200 200">
-          <g>
-            <circle cx="100" cy="50" r="20" fill="black">
-              <animate attributeName="r" from="20" to="0" dur="2s" begin="2s" fill="freeze" />
-            </circle>
-            <line x1="100" y1="70" x2="100" y2="130" stroke="black" strokeWidth="6">
-              <animate attributeName="y2" from="130" to="200" dur="1s" begin="2.5s" fill="freeze" />
-            </line>
-            <line x1="100" y1="80" x2="70" y2="110" stroke="black" strokeWidth="6">
-              <animate attributeName="x2" from="70" to="30" dur="1s" begin="2.5s" fill="freeze" />
-            </line>
-            <line x1="100" y1="80" x2="130" y2="110" stroke="black" strokeWidth="6">
-              <animate attributeName="x2" from="130" to="170" dur="1s" begin="2.5s" fill="freeze" />
-            </line>
-          </g>
-        </svg>
+        <div key={step} style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          color: 'black',
+          animation: ['fadeIn', 'slideLeft', 'slideRight', 'zoomIn', 'slideUp', 'fadeIn'][step % 6] + ' 0.6s ease forwards'
+        }}>
+          {messages[step]}
+        </div>
       ) : (
         <>
           <img
@@ -99,6 +107,31 @@ export default function OnboardingPage() {
             transform: translateY(0);
             opacity: 1;
           }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideLeft {
+          from { transform: translateX(100px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideRight {
+          from { transform: translateX(-100px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+          from { transform: translateY(100px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+          from { transform: scale(0.8); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>

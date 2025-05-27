@@ -21,7 +21,7 @@ export default function IgorChat() {
     setWaiting(true)
 
     try {
-      const res = await fetch('https://manuachinelli.app.n8n.cloud/webhook/9f9c2b6b-09fb-4df9-b68b-4fcabee8b306', {
+      const res = await fetch('https://manuachinelli.app.n8n.cloud/webhook/89bebd77-ed15-4cde-96a1-d04681f3bcd1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input }),

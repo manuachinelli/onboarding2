@@ -12,6 +12,8 @@ export default function OnboardingPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  const iconNames = ['automation.png', 'billing.png', 'chat.png', 'flows.png']
+
   return (
     <div style={{
       height: '100vh',
@@ -53,27 +55,33 @@ export default function OnboardingPage() {
               filter: 'drop-shadow(0 0 15px white)',
             }}
           />
-          <h1 style={{ color: 'white', fontWeight: 400, fontSize: '24px', marginBottom: '40px' }}>
+          <h1 style={{
+            color: 'white',
+            fontWeight: 400,
+            fontSize: '24px',
+            marginBottom: '40px'
+          }}>
             Bienvenido a Igor
           </h1>
+
           <div style={{
             display: 'flex',
             gap: '32px',
-            animation: 'fall 1s ease forwards',
-            opacity: 0,
-            animationDelay: '0.5s'
-          }} className="icon-row">
-            {['automation', 'billing', 'chat', 'flows'].map((name) => (
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            {iconNames.map((name, index) => (
               <img
                 key={name}
-                src={`/${name}.png`}
+                src={`/${name}`}
                 alt={name}
                 style={{
                   width: '64px',
                   filter: 'drop-shadow(0 0 12px white)',
-                  transform: 'translateY(-200px)',
-                  animation: 'drop 0.8s ease-out forwards',
-                  animationDelay: '0.7s'
+                  transform: 'translateY(-150px)',
+                  opacity: 0,
+                  animation: `drop 0.6s ease-out forwards`,
+                  animationDelay: `${0.6 + index * 0.2}s`
                 }}
               />
             ))}

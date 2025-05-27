@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
   const [showLogo, setShowLogo] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -49,10 +51,12 @@ export default function OnboardingPage() {
           <img
             src="/home.png"
             alt="Home"
+            onClick={() => router.push('/onboarding/igor-chat')}
             style={{
               width: '160px',
               marginBottom: '24px',
               filter: 'drop-shadow(0 0 15px white)',
+              cursor: 'pointer'
             }}
           />
           <h1 style={{

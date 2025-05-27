@@ -13,21 +13,28 @@ export default function OnboardingPage() {
     'TU PRIMER AGENTE PERSONAL',
     'SERA TU MEJOR AMIGO PARA SIEMPRE',
     'HARA LAS TAREAS REPETITIVAS DE TU TRABAJO',
-    'Y VOS TE ENCARGARAS DE LO DEMÁS',
+    'Y VOS TE ENCARGARAS DE LO DEMAS',
     'HACIENDO FOCO EN LO QUE REALMENTE TE DA VALOR',
   ]
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLogo(true)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!showLogo) return
     const interval = setInterval(() => {
-      if (step < messages.length - 1) {
-        setStep((prev) => prev + 1)
-      } else {
+      setStep((prev) => {
+        if (prev < messages.length - 1) return prev + 1
         clearInterval(interval)
-        setTimeout(() => setShowLogo(true), 1000)
-      }
+        return prev
+      })
     }, 2000)
     return () => clearInterval(interval)
-  }, [step])
+  }, [showLogo])
 
   const iconNames = ['automation.png', 'billing.png', 'chat.png', 'flows.png']
 
@@ -45,36 +52,22 @@ export default function OnboardingPage() {
       overflow: 'hidden'
     }}>
       {!showLogo ? (
-        <>
-          <svg width="200" height="200" viewBox="0 0 200 200">
-            <g>
-              <circle cx="100" cy="50" r="20" fill="black">
-                <animate attributeName="r" from="20" to="0" dur="2s" begin="2s" fill="freeze" />
-              </circle>
-              <line x1="100" y1="70" x2="100" y2="130" stroke="black" strokeWidth="6">
-                <animate attributeName="y2" from="130" to="200" dur="1s" begin="2.5s" fill="freeze" />
-              </line>
-              <line x1="100" y1="80" x2="70" y2="110" stroke="black" strokeWidth="6">
-                <animate attributeName="x2" from="70" to="30" dur="1s" begin="2.5s" fill="freeze" />
-              </line>
-              <line x1="100" y1="80" x2="130" y2="110" stroke="black" strokeWidth="6">
-                <animate attributeName="x2" from="130" to="170" dur="1s" begin="2.5s" fill="freeze" />
-              </line>
-            </g>
-          </svg>
-
-          <div key={step} style={{
-            color: 'black',
-            fontWeight: 'bold',
-            fontSize: '22px',
-            marginTop: '24px',
-            animation: 'fadeIn 0.6s ease forwards',
-            textAlign: 'center',
-            maxWidth: '90%'
-          }}>
-            {messages[step]}
-          </div>
-        </>
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <g>
+            <circle cx="100" cy="50" r="20" fill="black">
+              <animate attributeName="r" from="20" to="0" dur="2s" begin="2s" fill="freeze" />
+            </circle>
+            <line x1="100" y1="70" x2="100" y2="130" stroke="black" strokeWidth="6">
+              <animate attributeName="y2" from="130" to="200" dur="1s" begin="2.5s" fill="freeze" />
+            </line>
+            <line x1="100" y1="80" x2="70" y2="110" stroke="black" strokeWidth="6">
+              <animate attributeName="x2" from="70" to="30" dur="1s" begin="2.5s" fill="freeze" />
+            </line>
+            <line x1="100" y1="80" x2="130" y2="110" stroke="black" strokeWidth="6">
+              <animate attributeName="x2" from="130" to="170" dur="1s" begin="2.5s" fill="freeze" />
+            </line>
+          </g>
+        </svg>
       ) : (
         <>
           <img
@@ -88,14 +81,18 @@ export default function OnboardingPage() {
               cursor: 'pointer'
             }}
           />
-          <h1 style={{
+          <div style={{
             color: 'white',
             fontWeight: 400,
             fontSize: '24px',
-            marginBottom: '40px'
+            marginBottom: '40px',
+            textAlign: 'center',
+            minHeight: '40px',
+            transition: 'opacity 0.3s ease',
+            animation: 'fadeIn 0.6s ease',
           }}>
-            Bienvenido a Igor
-          </h1>
+            {messages[step]}
+          </div>
 
           <div style={{
             display: 'flex',

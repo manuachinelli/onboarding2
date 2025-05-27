@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import styles from './igor-chat.module.css'
 
 export default function IgorChat() {
-  const [messages, setMessages] = useState<{ sender: 'user' | 'assistant'; text: string }[]>([])
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [waiting, setWaiting] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const messagesEndRef = useRef(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -36,7 +36,7 @@ export default function IgorChat() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !waiting) sendMessage()
   }
 

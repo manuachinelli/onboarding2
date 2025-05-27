@@ -24,7 +24,10 @@ export default function IgorChat() {
       const res = await fetch('https://manuachinelli.app.n8n.cloud/webhook/89bebd77-ed15-4cde-96a1-d04681f3bcd1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({
+          message: input,
+          userId: 'igor-demo-user-1'
+        }),
       })
 
       const data = await res.json()

@@ -21,10 +21,10 @@ export default function OnboardingPage() {
   ]
 
   useEffect(() => {
-    const existingId = localStorage.getItem('igor_user_id')
+    const existingId = localStorage.getItem('igor-user-id')
     if (!existingId) {
       const newId = 'igor-' + crypto.randomUUID()
-      localStorage.setItem('igor_user_id', newId)
+      localStorage.setItem('igor-user-id', newId)
     }
   }, [])
 
@@ -66,7 +66,7 @@ export default function OnboardingPage() {
     }
 
     const fullUrl = `https://${urlPart.trim()}`
-    const userId = localStorage.getItem('igor_user_id') || 'undefined'
+    const userId = localStorage.getItem('igor-user-id') || 'igor-temp'
 
     try {
       await fetch('https://manuachinelli.app.n8n.cloud/webhook/2c497b66-0d5e-4f22-8d84-15568eba0d93', {

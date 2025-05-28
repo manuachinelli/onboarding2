@@ -110,7 +110,7 @@ export default function IgorChat() {
                   setIsRecording(false)
                   setIsConverting(true)
                   setTimeout(() => {
-                    const converted = 'Texto convertido desde voz'
+                    const converted = 'Hola'
                     setIsConverting(false)
                     sendToN8N(converted)
                   }, 1500)

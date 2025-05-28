@@ -6,9 +6,19 @@ import { useRouter } from 'next/navigation'
 export default function OnboardingPage() {
   const [showLogo, setShowLogo] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  const [url, setUrl] = useState('')
+  const [urlPart, setUrlPart] = useState('')
   const [error, setError] = useState('')
+  const [messageIndex, setMessageIndex] = useState(0)
   const router = useRouter()
+
+  const fullMessages = [
+    'BIENVENIDO A IGOR',
+    'TU PRIMER AGENTE PERSONAL',
+    'SERA TU MEJOR AMIGO PARA SIEMPRE',
+    'HARA LAS TAREAS REPETITIVAS DE TU TRABAJO',
+    'Y VOS TE ENCARGARAS DE LO DEMAS',
+    'HACIENDO FOCO EN LO QUE REALMENTE TE DA VALOR',
+  ]
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -17,14 +27,24 @@ export default function OnboardingPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  useEffect(() => {
+    if (showLogo && messageIndex < fullMessages.length - 1 && !showForm) {
+      const delay = setTimeout(() => {
+        setMessageIndex((prev) => prev + 1)
+      }, 2000)
+      return () => clearTimeout(delay)
+    }
+  }, [messageIndex, showLogo, showForm])
+
   const handleLogoClick = () => {
     setShowForm(true)
   }
 
   const validateUrl = (input) => {
     try {
-      const parsed = new URL(input)
-      return ['http:', 'https:'].includes(parsed.protocol)
+      const full = 'https://' + input.trim()
+      const parsed = new URL(full)
+      return parsed.hostname.length > 0
     } catch {
       return false
     }
@@ -32,16 +52,17 @@ export default function OnboardingPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!validateUrl(url)) {
-      setError('Por favor ingresa una URL válida (ej: https://tusitio.com)')
+    if (!validateUrl(urlPart)) {
+      setError('Ingresá un dominio válido (ej: manuel.com)')
       return
     }
 
+    const fullUrl = `https://${urlPart.trim()}`
     try {
       await fetch('https://manuachinelli.app.n8n.cloud/webhook/2c497b66-0d5e-4f22-8d84-15568eba0d93', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ website: url }),
+        body: JSON.stringify({ website: fullUrl }),
       })
       router.push('/onboarding/igor-chat')
     } catch (err) {
@@ -84,22 +105,24 @@ export default function OnboardingPage() {
       ) : showForm ? (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
           <label style={{ fontSize: '18px' }}>¿Puedes comentarme cuál es la web de tu negocio?</label>
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://tusitio.com"
-            style={{
-              padding: '10px 14px',
-              borderRadius: '12px',
-              border: 'none',
-              width: '320px',
-              fontSize: '14px',
-              backgroundColor: '#1a1a1a',
-              color: 'white'
-            }}
-            required
-          />
+          <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#1a1a1a', padding: '10px 14px', borderRadius: '12px' }}>
+            <span style={{ color: '#777', marginRight: '4px' }}>https://</span>
+            <input
+              type="text"
+              value={urlPart}
+              onChange={(e) => setUrlPart(e.target.value)}
+              placeholder="manuel.com"
+              style={{
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: 'white',
+                fontSize: '14px',
+                outline: 'none',
+                width: '220px'
+              }}
+              required
+            />
+          </div>
           {error && <div style={{ color: '#f87171', fontSize: '12px' }}>{error}</div>}
           <button
             type="submit"
@@ -134,14 +157,11 @@ export default function OnboardingPage() {
             fontWeight: 400,
             fontSize: '24px',
             marginBottom: '40px',
-            textAlign: 'center'
+            textAlign: 'center',
+            minHeight: '120px',
+            transition: 'opacity 0.5s',
           }}>
-            BIENVENIDO A IGOR<br />
-            TU PRIMER AGENTE PERSONAL<br />
-            SERA TU MEJOR AMIGO PARA SIEMPRE<br />
-            HARA LAS TAREAS REPETITIVAS DE TU TRABAJO<br />
-            Y VOS TE ENCARGARAS DE LO DEMAS<br />
-            HACIENDO FOCO EN LO QUE REALMENTE TE DA VALOR
+            {fullMessages[messageIndex]}
           </h1>
 
           <div style={{

@@ -5,17 +5,10 @@ import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
   const [showLogo, setShowLogo] = useState(false)
-  const [step, setStep] = useState(0)
+  const [showForm, setShowForm] = useState(false)
+  const [url, setUrl] = useState('')
+  const [error, setError] = useState('')
   const router = useRouter()
-
-  const messages = [
-    'BIENVENIDO A IGOR',
-    'TU PRIMER AGENTE PERSONAL',
-    'SERA TU MEJOR AMIGO PARA SIEMPRE',
-    'HARA LAS TAREAS REPETITIVAS DE TU TRABAJO',
-    'Y VOS TE ENCARGARAS DE LO DEMAS',
-    'HACIENDO FOCO EN LO QUE REALMENTE TE DA VALOR',
-  ]
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -24,17 +17,37 @@ export default function OnboardingPage() {
     return () => clearTimeout(timer)
   }, [])
 
-  useEffect(() => {
-    if (!showLogo) return
-    const interval = setInterval(() => {
-      setStep((prev) => {
-        if (prev < messages.length - 1) return prev + 1
-        clearInterval(interval)
-        return prev
+  const handleLogoClick = () => {
+    setShowForm(true)
+  }
+
+  const validateUrl = (input) => {
+    try {
+      const parsed = new URL(input)
+      return ['http:', 'https:'].includes(parsed.protocol)
+    } catch {
+      return false
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validateUrl(url)) {
+      setError('Por favor ingresa una URL válida (ej: https://tusitio.com)')
+      return
+    }
+
+    try {
+      await fetch('https://manuachinelli.app.n8n.cloud/webhook/2c497b66-0d5e-4f22-8d84-15568eba0d93', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ website: url }),
       })
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [showLogo])
+      router.push('/onboarding/igor-chat')
+    } catch (err) {
+      setError('Hubo un problema al enviar. Intentá de nuevo.')
+    }
+  }
 
   const iconNames = ['automation.png', 'billing.png', 'chat.png', 'flows.png']
 
@@ -68,12 +81,46 @@ export default function OnboardingPage() {
             </line>
           </g>
         </svg>
+      ) : showForm ? (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+          <label style={{ fontSize: '18px' }}>¿Puedes comentarme cuál es la web de tu negocio?</label>
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://tusitio.com"
+            style={{
+              padding: '10px 14px',
+              borderRadius: '12px',
+              border: 'none',
+              width: '320px',
+              fontSize: '14px',
+              backgroundColor: '#1a1a1a',
+              color: 'white'
+            }}
+            required
+          />
+          {error && <div style={{ color: '#f87171', fontSize: '12px' }}>{error}</div>}
+          <button
+            type="submit"
+            style={{
+              backgroundColor: '#2563eb',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            Continuar
+          </button>
+        </form>
       ) : (
         <>
           <img
             src="/home.png"
             alt="Home"
-            onClick={() => router.push('/onboarding/igor-chat')}
+            onClick={handleLogoClick}
             style={{
               width: '160px',
               marginBottom: '24px',
@@ -81,18 +128,21 @@ export default function OnboardingPage() {
               cursor: 'pointer'
             }}
           />
-          <div style={{
+
+          <h1 style={{
             color: 'white',
             fontWeight: 400,
             fontSize: '24px',
             marginBottom: '40px',
-            textAlign: 'center',
-            minHeight: '40px',
-            transition: 'opacity 0.3s ease',
-            animation: 'fadeIn 0.6s ease',
+            textAlign: 'center'
           }}>
-            {messages[step]}
-          </div>
+            BIENVENIDO A IGOR<br />
+            TU PRIMER AGENTE PERSONAL<br />
+            SERA TU MEJOR AMIGO PARA SIEMPRE<br />
+            HARA LAS TAREAS REPETITIVAS DE TU TRABAJO<br />
+            Y VOS TE ENCARGARAS DE LO DEMAS<br />
+            HACIENDO FOCO EN LO QUE REALMENTE TE DA VALOR
+          </h1>
 
           <div style={{
             display: 'flex',
@@ -125,11 +175,6 @@ export default function OnboardingPage() {
             transform: translateY(0);
             opacity: 1;
           }
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
         }
       `}</style>
     </div>

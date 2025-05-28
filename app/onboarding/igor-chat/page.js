@@ -8,6 +8,8 @@ export default function IgorChat() {
   const [input, setInput] = useState('')
   const [waiting, setWaiting] = useState(false)
   const messagesEndRef = useRef(null)
+  const [recognizing, setRecognizing] = useState(false)
+  const recognitionRef = useRef(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -43,6 +45,33 @@ export default function IgorChat() {
     if (e.key === 'Enter' && !waiting) sendMessage()
   }
 
+  const toggleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognition) return alert('Tu navegador no soporta reconocimiento de voz.')
+
+    if (!recognitionRef.current) {
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.lang = 'es-AR'
+      recognitionRef.current.continuous = false
+      recognitionRef.current.interimResults = false
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        setInput((prev) => prev + transcript)
+      }
+
+      recognitionRef.current.onerror = () => setRecognizing(false)
+      recognitionRef.current.onend = () => setRecognizing(false)
+    }
+
+    if (!recognizing) {
+      setRecognizing(true)
+      recognitionRef.current.start()
+    } else {
+      recognitionRef.current.stop()
+    }
+  }
+
   return (
     <div className={styles.chatContainer}>
       <div className={styles.messagesContainer}>
@@ -62,7 +91,7 @@ export default function IgorChat() {
         <div className={styles.inputBox}>
           <input
             className={styles.input}
-            placeholder="Escribí tu mensaje..."
+            placeholder="Escribí tu mensaje o hablá..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -74,6 +103,13 @@ export default function IgorChat() {
             disabled={waiting}
           >
             ➤
+          </button>
+          <button
+            onClick={toggleVoiceInput}
+            className={`${styles.iconButton} ${recognizing ? styles.disabled : ''}`}
+            title="Hablar"
+          >
+            🎤
           </button>
         </div>
         <div className={styles.status}>Say hi to Igor</div>

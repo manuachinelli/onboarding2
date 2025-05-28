@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import styles from './IgorChat.module.css'
+import styles from './igor-chat.module.css'
 
 const MicSVG = () => (
   <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 24 24" fill="white">
@@ -14,15 +14,41 @@ export default function IgorChat() {
   const [input, setInput] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [isConverting, setIsConverting] = useState(false)
+  const [waiting, setWaiting] = useState(false)
+
+  const messagesEndRef = useRef(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const sendToN8N = async (text) => {
+    setWaiting(true)
+    const newMessages = [...messages, { sender: 'user', text }]
+    setMessages(newMessages)
+
+    try {
+      const res = await fetch('https://manuachinelli.app.n8n.cloud/webhook/89bebd77-ed15-4cde-96a1-d04681f3bcd1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          userId: 'igor-demo-user-1'
+        }),
+      })
+      const data = await res.json()
+      setMessages([...newMessages, { sender: 'assistant', text: data.output || data.reply || '...' }])
+    } catch {
+      setMessages([...newMessages, { sender: 'assistant', text: 'Error al conectar con Igor.' }])
+    } finally {
+      setWaiting(false)
+    }
+  }
 
   const handleSend = () => {
     if (!input.trim()) return
-    setMessages([...messages, { sender: 'user', text: input }])
+    sendToN8N(input)
     setInput('')
-    // Simulación de respuesta
-    setTimeout(() => {
-      setMessages(prev => [...prev, { sender: 'assistant', text: 'Respuesta automática de Igor.' }])
-    }, 1000)
   }
 
   return (
@@ -36,7 +62,8 @@ export default function IgorChat() {
             {msg.text}
           </div>
         ))}
-        {isConverting && <div className={styles.waiting}>Convirtiendo audio a texto...</div>}
+        {waiting && <div className={styles.waiting}>Igor está respondiendo...</div>}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className={styles.inputSection}>
@@ -63,15 +90,27 @@ export default function IgorChat() {
               {[...Array(5)].map((_, i) => <div key={i} className={styles.bar} />)}
             </div>
             <div className={styles.confirmButtons}>
-              <button className={styles.confirmButton} onClick={() => {
-                setIsRecording(false)
-                setIsConverting(true)
-                setTimeout(() => {
-                  setInput('Texto convertido desde voz')
-                  setIsConverting(false)
-                }, 2000)
-              }}>✅</button>
-              <button className={styles.confirmButton} onClick={() => setIsRecording(false)}>❌</button>
+              <button
+                className={styles.confirmButton}
+                onClick={() => {
+                  setIsRecording(false)
+                  setIsConverting(true)
+                  setTimeout(() => {
+                    const converted = 'Texto convertido desde voz'
+                    setInput('')
+                    setIsConverting(false)
+                    sendToN8N(converted)
+                  }, 1500)
+                }}
+              >
+                ✅
+              </button>
+              <button
+                className={styles.confirmButton}
+                onClick={() => setIsRecording(false)}
+              >
+                ❌
+              </button>
             </div>
           </>
         )}

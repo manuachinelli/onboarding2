@@ -23,6 +23,7 @@ export default function IgorChat() {
   }, [messages])
 
   const sendToN8N = async (text) => {
+    if (!text.trim()) return
     setWaiting(true)
     const newMessages = [...messages, { sender: 'user', text }]
     setMessages(newMessages)
@@ -75,12 +76,25 @@ export default function IgorChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            disabled={waiting}
           />
 
           {!isRecording && !isConverting && (
-            <button className={styles.iconButton} onClick={() => setIsRecording(true)}>
-              <MicSVG />
-            </button>
+            <>
+              <button
+                className={`${styles.iconButton} ${waiting ? styles.disabled : ''}`}
+                onClick={handleSend}
+                disabled={waiting}
+              >
+                ➤
+              </button>
+              <button
+                className={`${styles.iconButton} ${waiting ? styles.disabled : ''}`}
+                onClick={() => setIsRecording(true)}
+              >
+                <MicSVG />
+              </button>
+            </>
           )}
         </div>
 
@@ -97,7 +111,6 @@ export default function IgorChat() {
                   setIsConverting(true)
                   setTimeout(() => {
                     const converted = 'Texto convertido desde voz'
-                    setInput('')
                     setIsConverting(false)
                     sendToN8N(converted)
                   }, 1500)

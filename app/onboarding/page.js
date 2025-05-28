@@ -21,6 +21,14 @@ export default function OnboardingPage() {
   ]
 
   useEffect(() => {
+    const existingId = localStorage.getItem('igor_user_id')
+    if (!existingId) {
+      const newId = 'igor-' + crypto.randomUUID()
+      localStorage.setItem('igor_user_id', newId)
+    }
+  }, [])
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       setShowLogo(true)
     }, 5000)
@@ -58,11 +66,13 @@ export default function OnboardingPage() {
     }
 
     const fullUrl = `https://${urlPart.trim()}`
+    const userId = localStorage.getItem('igor_user_id') || 'undefined'
+
     try {
       await fetch('https://manuachinelli.app.n8n.cloud/webhook/2c497b66-0d5e-4f22-8d84-15568eba0d93', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ website: fullUrl }),
+        body: JSON.stringify({ website: fullUrl, userId }),
       })
       router.push('/onboarding/igor-chat')
     } catch (err) {

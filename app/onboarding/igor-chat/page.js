@@ -7,8 +7,10 @@ export default function IgorChat() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [waiting, setWaiting] = useState(false)
-  const messagesEndRef = useRef(null)
   const [recognizing, setRecognizing] = useState(false)
+  const [processingVoice, setProcessingVoice] = useState(false)
+
+  const messagesEndRef = useRef(null)
   const recognitionRef = useRef(null)
 
   useEffect(() => {
@@ -57,11 +59,21 @@ export default function IgorChat() {
 
       recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript
-        setInput((prev) => prev + transcript)
+        setProcessingVoice(true)
+        setTimeout(() => {
+          setInput((prev) => prev + transcript)
+          setProcessingVoice(false)
+        }, 1000)
       }
 
-      recognitionRef.current.onerror = () => setRecognizing(false)
-      recognitionRef.current.onend = () => setRecognizing(false)
+      recognitionRef.current.onerror = () => {
+        setRecognizing(false)
+        setProcessingVoice(false)
+      }
+
+      recognitionRef.current.onend = () => {
+        setRecognizing(false)
+      }
     }
 
     if (!recognizing) {
@@ -106,10 +118,15 @@ export default function IgorChat() {
           </button>
           <button
             onClick={toggleVoiceInput}
-            className={`${styles.iconButton} ${recognizing ? styles.disabled : ''}`}
+            className={styles.micButton}
+            disabled={recognizing || processingVoice}
             title="Hablar"
           >
-            🎤
+            {processingVoice ? (
+              <span className={styles.spinner} />
+            ) : (
+              <span className={styles.micIcon}>🎤</span>
+            )}
           </button>
         </div>
         <div className={styles.status}>Say hi to Igor</div>
@@ -117,3 +134,4 @@ export default function IgorChat() {
     </div>
   )
 }
+

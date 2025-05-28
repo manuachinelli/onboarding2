@@ -24,9 +24,9 @@ export default function IgorChat() {
 
   const getUserId = () => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('igor-user-id') || 'igor-demo-user-1'
+      return localStorage.getItem('igor-user-id') || 'igor-temp'
     }
-    return 'igor-demo-user-1'
+    return 'igor-temp'
   }
 
   const sendToN8N = async (text) => {
